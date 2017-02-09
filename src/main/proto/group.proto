@@ -1,0 +1,16 @@
+syntax = 'proto3';
+
+package org.codenergic.simcat.data;
+
+option java_package = "org.codenergic.simcat.data";
+
+message Group {
+	int64 id = 1;
+	string name = 2;
+	enum Type {
+		DIRECT = 0;
+		PRIVATE_GROUP = 1;
+		PUBLIC_GROUP = 2;
+	}
+	Type type = 3;
+}

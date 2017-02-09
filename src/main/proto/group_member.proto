@@ -1,0 +1,15 @@
+syntax = 'proto3';
+
+package org.codenergic.simcat.data;
+
+option java_package = "org.codenergic.simcat.data";
+
+import "group.proto";
+import "user.proto";
+
+message GroupMember {
+	int64 id = 1;
+	User user = 2;
+	Group group = 3;
+	bool is_admin = 4;
+}

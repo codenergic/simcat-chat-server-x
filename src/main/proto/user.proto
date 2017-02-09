@@ -1,0 +1,14 @@
+syntax = 'proto3';
+
+package org.codenergic.simcat.data;
+
+option java_package = "org.codenergic.simcat.data";
+
+message User {
+	int64 id = 1;
+	string username = 2;
+	string password = 3;
+	string email = 4;
+	string phone_number = 5;
+	string fullname = 6;
+}
