@@ -1,0 +1,15 @@
+vertx:
+  sockjs:
+    bridge_options:
+      inbound_permitteds:
+        - address: chat.token
+        - address: chat.message
+        - address_regex: chat.message\\..+
+      outboud_permitteds:
+        - address: chat.token
+        - address_regex: chat.message\\..+
+  web:
+    server_options:
+      port: ${server.port:8080}
+    static:
+      caching_enabled: true

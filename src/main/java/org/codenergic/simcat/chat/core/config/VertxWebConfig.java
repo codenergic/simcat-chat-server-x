@@ -3,52 +3,58 @@ package org.codenergic.simcat.chat.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.PermittedOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
 @Configuration
 public class VertxWebConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean
-	public HttpServer httpServer(Vertx vertx) {
-		return vertx.createHttpServer();
+	@ConfigurationProperties(prefix = "vertx.web.server_options")
+	public HttpServerOptions httpServerOptions() {
+		return new HttpServerOptions();
 	}
 
 	@Bean
-	public Router httpRouter(Vertx vertx) {
-		Router router = Router.router(vertx);
+	public HttpServer httpServer(Vertx vertx, HttpServerOptions httpServerOptions) {
+		return vertx.createHttpServer(httpServerOptions);
+	}
 
-		// SockJS Bridge
-		SockJSHandler sockJSHandler = SockJSHandler.create(vertx)
-				.bridge(new BridgeOptions()
-						.addInboundPermitted(new PermittedOptions().setAddress("chat.token"))
-						.addInboundPermitted(new PermittedOptions().setAddress("chat.message"))
-						.addInboundPermitted(new PermittedOptions().setAddressRegex("chat.message\\..+"))
-						.addOutboundPermitted(new PermittedOptions().setAddress("chat.token"))
-						.addOutboundPermitted(new PermittedOptions().setAddressRegex("chat.message\\..+")));
-		router.route("/eventbus/*").handler(sockJSHandler);
+	@Bean
+	@ConfigurationProperties(prefix = "vertx.web.static")
+	public StaticHandler staticHandler() {
+		return StaticHandler.create();
+	}
 
-		// Handle static file
-		StaticHandler staticHandler = StaticHandler.create().setCachingEnabled(false);
-		router.route().handler(staticHandler);
+	@Bean
+	public Router httpRouter(Vertx vertx, StaticHandler staticHandler) {
+		return Router.router(vertx);
+	}
 
-		return router;
+	@Bean
+	public Handler<HttpServerRequest> httpServerRequestHandler(Router router) {
+		return router::accept;
 	}
 
 	@Autowired
-	public void configureAndStartHttpServer(HttpServer httpServer, Router router, @Value("${server.port:8080}") int port) {
+	public void configureStaticHandler(Router router, StaticHandler staticHandler) {
+		router.route().handler(staticHandler);
+	}
+
+	@Autowired
+	public void configureAndStartHttpServer(HttpServer httpServer, Handler<HttpServerRequest> httpServerRequestHandler) {
 		logger.info("Starting HTTP server");
-		httpServer.requestHandler(router::accept).listen(port, h -> {
+		httpServer.requestHandler(httpServerRequestHandler).listen(h -> {
 			if (h.succeeded()) {
 				logger.info("HTTP server started at {}", h.result().actualPort());
 			} else {
