@@ -14,6 +14,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
 @Configuration
 public class VertxWebConfig {
@@ -37,7 +38,7 @@ public class VertxWebConfig {
 	}
 
 	@Bean
-	public Router httpRouter(Vertx vertx, StaticHandler staticHandler) {
+	public Router httpRouter(Vertx vertx) {
 		return Router.router(vertx);
 	}
 
@@ -49,6 +50,11 @@ public class VertxWebConfig {
 	@Autowired
 	public void configureStaticHandler(Router router, StaticHandler staticHandler) {
 		router.route().handler(staticHandler);
+	}
+
+	@Autowired
+	public void configureSockJSHandler(Router router, SockJSHandler sockJSHandler) {
+		router.route("/api/bus/*").handler(sockJSHandler);
 	}
 
 	@Autowired

@@ -5,7 +5,7 @@ vertx:
         - address: chat.token
         - address: chat.message
         - address_regex: chat.message\\..+
-      outboud_permitteds:
+      outbound_permitteds:
         - address: chat.token
         - address_regex: chat.message\\..+
   web:
