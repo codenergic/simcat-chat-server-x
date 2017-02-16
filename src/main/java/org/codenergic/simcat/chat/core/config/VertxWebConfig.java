@@ -1,5 +1,7 @@
 package org.codenergic.simcat.chat.core.config;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
 @Configuration
 public class VertxWebConfig {
@@ -38,23 +39,17 @@ public class VertxWebConfig {
 	}
 
 	@Bean
-	public Router httpRouter(Vertx vertx) {
-		return Router.router(vertx);
+	public Router staticHandlerRouter(Vertx vertx, StaticHandler staticHandler) {
+		Router router = Router.router(vertx);
+		router.route().handler(staticHandler);
+		return router;
 	}
 
 	@Bean
-	public Handler<HttpServerRequest> httpServerRequestHandler(Router router) {
+	public Handler<HttpServerRequest> httpServerRequestHandler(Vertx vertx, List<Router> routers) {
+		Router router = Router.router(vertx);
+		routers.forEach(r -> router.mountSubRouter("/", r));
 		return router::accept;
-	}
-
-	@Autowired
-	public void configureStaticHandler(Router router, StaticHandler staticHandler) {
-		router.route().handler(staticHandler);
-	}
-
-	@Autowired
-	public void configureSockJSHandler(Router router, SockJSHandler sockJSHandler) {
-		router.route("/api/bus/*").handler(sockJSHandler);
 	}
 
 	@Autowired

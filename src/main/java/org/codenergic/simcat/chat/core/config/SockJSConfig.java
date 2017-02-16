@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 
@@ -27,5 +28,12 @@ public class SockJSConfig {
 		logger.info("SockJS inbound permitted: {}", Json.encode(bridgeOptions.getInboundPermitteds()));
 		logger.info("SockJS outbound permitted: {}", Json.encode(bridgeOptions.getOutboundPermitteds()));
 		return SockJSHandler.create(vertx).bridge(bridgeOptions);
+	}
+	
+	@Bean
+	public Router staticHandlerRouter(Vertx vertx, SockJSHandler sockJSHandler) {
+		Router router = Router.router(vertx);
+		router.route("/api/bus/*").handler(sockJSHandler);
+		return router;
 	}
 }
