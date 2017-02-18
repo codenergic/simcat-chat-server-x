@@ -27,7 +27,7 @@ public class VertxWebConfig {
 		return new HttpServerOptions();
 	}
 
-	@Bean
+	@Bean(destroyMethod = "close")
 	public HttpServer httpServer(Vertx vertx, HttpServerOptions httpServerOptions) {
 		return vertx.createHttpServer(httpServerOptions);
 	}

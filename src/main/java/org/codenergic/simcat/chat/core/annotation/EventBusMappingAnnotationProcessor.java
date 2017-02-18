@@ -1,8 +1,14 @@
 package org.codenergic.simcat.chat.core.annotation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.ReflectionUtils;
@@ -11,9 +17,11 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 public class EventBusMappingAnnotationProcessor implements BeanPostProcessor {
+	private ConfigurableListableBeanFactory beanFactory;
 	private EventBus eventBus;
 
 	public EventBusMappingAnnotationProcessor(ConfigurableListableBeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 		this.eventBus = beanFactory.getBean(EventBus.class);
 	}
 
@@ -35,13 +43,57 @@ public class EventBusMappingAnnotationProcessor implements BeanPostProcessor {
 
 	private void doWithAnnotatedMethod(Object bean, Method method) {
 		String busAddress = method.getDeclaredAnnotation(EventBusMapping.class).value();
-		eventBus.consumer(busAddress, m -> ReflectionUtils.invokeMethod(method, bean, m));
+		
+		final Object[] methodParameterInstances = getParameterInstances(method);
+		final List<Integer> messageIndexes = getMessageParameterIndexes(method);
+		
+		eventBus.consumer(busAddress, m -> {
+			Object[] parameterInstances = Arrays.copyOf(methodParameterInstances, methodParameterInstances.length);
+			ReflectionUtils.invokeMethod(method, bean, replaceMessage(parameterInstances, messageIndexes, m));
+		});
 	}
 
 	private boolean filterAnnotation(Method method) {
-		if (method.getParameterCount() != 1) return false;
+		return method.isAnnotationPresent(EventBusMapping.class);
+	}
 
-		return method.isAnnotationPresent(EventBusMapping.class) &&
-				method.getParameterTypes()[0].isAssignableFrom(Message.class);
+	private List<Integer> getMessageParameterIndexes(Method method) {
+		List<Integer> messageIndexes = new ArrayList<>();
+		int i = 0;
+		for (Parameter parameter : method.getParameters()) {
+			if (parameter.getType().isAssignableFrom(Message.class)) {
+				messageIndexes.add(i);
+			}
+			i++;
+		}
+		return messageIndexes;
+	}
+
+	private Object[] getParameterInstances(Method method) {
+		List<Object> parameterInstances = new ArrayList<>(method.getParameterCount());
+		for (Parameter parameter : method.getParameters()) {
+			parameterInstances.add(getParameterInstance(parameter));
+		}
+		return parameterInstances.toArray();
+	}
+
+	private Object getParameterInstance(Parameter parameter) {
+		if (parameter.getType().isAssignableFrom(Message.class)) {
+			return null;
+		}
+
+		if (parameter.isAnnotationPresent(Qualifier.class)) {
+			Qualifier qualifier = parameter.getDeclaredAnnotation(Qualifier.class);
+			return BeanFactoryAnnotationUtils.qualifiedBeanOfType(beanFactory, parameter.getType(), qualifier.value());
+		} else {
+			return beanFactory.getBean(parameter.getType());
+		}
+	}
+
+	private Object[] replaceMessage(Object[] parameterInstances, List<Integer> messageIndexes, Message<Object> message) {
+		for (int idx : messageIndexes) {
+			parameterInstances[idx] = message;
+		}
+		return parameterInstances;
 	}
 }

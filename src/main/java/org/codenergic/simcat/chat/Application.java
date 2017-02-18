@@ -34,12 +34,17 @@ public class Application {
 	public void sendMessagePeriodically(Vertx vertx, EventBus eventBus) {
 		vertx.setPeriodic(5000, l -> {
 			eventBus.publish("chat.message.1", "This is message from server");
-			System.out.println("publishing");
 		});
 	}
 
 	@EventBusMapping("chat.message.1")
-	public void getChatMessage(Message<String> message) {
+	public void getChatMessage(Message<String> message, EventBus eventBus) {
+		logger.info(message.body());
+		eventBus.publish("chat.message.2", "This is 2nd message from server");
+	}
+
+	@EventBusMapping("chat.message.2")
+	public void getChatMessage2(Message<String> message) {
 		logger.info(message.body());
 	}
 }
