@@ -43,13 +43,17 @@ public class EventBusMappingAnnotationProcessor implements BeanPostProcessor {
 
 	private void doWithAnnotatedMethod(Object bean, Method method) {
 		String busAddress = method.getDeclaredAnnotation(EventBusMapping.class).value();
-		
+
 		final Object[] methodParameterInstances = getParameterInstances(method);
 		final List<Integer> messageIndexes = getMessageParameterIndexes(method);
-		
+		final boolean voidMethod = method.getReturnType().equals(Void.TYPE);
+
 		eventBus.consumer(busAddress, m -> {
-			Object[] parameterInstances = Arrays.copyOf(methodParameterInstances, methodParameterInstances.length);
-			ReflectionUtils.invokeMethod(method, bean, replaceMessage(parameterInstances, messageIndexes, m));
+			Object result = ReflectionUtils
+					.invokeMethod(method, bean, replaceMessage(methodParameterInstances, messageIndexes, m));
+			if (!voidMethod) {
+				m.reply(result);
+			}
 		});
 	}
 
@@ -91,9 +95,10 @@ public class EventBusMappingAnnotationProcessor implements BeanPostProcessor {
 	}
 
 	private Object[] replaceMessage(Object[] parameterInstances, List<Integer> messageIndexes, Message<Object> message) {
+		Object[] instances = Arrays.copyOf(parameterInstances, parameterInstances.length);
 		for (int idx : messageIndexes) {
-			parameterInstances[idx] = message;
+			instances[idx] = message;
 		}
-		return parameterInstances;
+		return instances;
 	}
 }
