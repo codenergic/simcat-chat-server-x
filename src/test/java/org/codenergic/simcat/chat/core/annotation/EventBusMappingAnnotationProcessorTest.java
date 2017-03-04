@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,8 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EventBusMappingTest.class)
-public class EventBusMappingTest {
+@SpringBootTest(classes = EventBusMappingAnnotationProcessorTest.class)
+public class EventBusMappingAnnotationProcessorTest {
 	@Autowired
 	private EventBus eventBus;
 
@@ -32,7 +33,7 @@ public class EventBusMappingTest {
 			Assertions.assertThat("Message 1: Testing 2").isNotEqualTo(replyMessage.body());
 			lock.countDown();
 		});
-		lock.await(2, TimeUnit.SECONDS);
+		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@Test
@@ -44,7 +45,29 @@ public class EventBusMappingTest {
 			Assertions.assertThat("Message 2: Testing 1").isNotEqualTo(replyMessage.body());
 			lock.countDown();
 		});
-		lock.await(2, TimeUnit.SECONDS);
+		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testSendMessage3() throws InterruptedException {
+		CountDownLatch lock = new CountDownLatch(1);
+		eventBus.send("/test/message/3", "Testing 3", m -> {
+			Message<Object> replyMessage = m.result();
+			Assertions.assertThat("Message 3: Testing 3").isEqualTo(replyMessage.body());
+			lock.countDown();
+		});
+		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testSendMessage4() throws InterruptedException {
+		CountDownLatch lock = new CountDownLatch(1);
+		eventBus.send("/test/message/4", "Testing 4", m -> {
+			Message<Object> replyMessage = m.result();
+			Assertions.assertThat("Message 4: Testing 4 String bean").isEqualTo(replyMessage.body());
+			lock.countDown();
+		});
+		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 
 	@EventBusMapping("/test/message/1")
@@ -57,6 +80,16 @@ public class EventBusMappingTest {
 		return "Message 2: " + message.body();
 	}
 
+	@EventBusMapping("/test/message/3")
+	public void consumeAndSendToAnother(Message<String> message, EventBus eventBus) {
+		eventBus.send(message.replyAddress(), "Message 3: " + message.body());
+	}
+
+	@EventBusMapping("/test/message/4")
+	public void consumeAndSendToAnother(Message<String> message, EventBus eventBus, @Qualifier("stringBean") String string) {
+		eventBus.send(message.replyAddress(), "Message 4: " + message.body() + " " + string);
+	}
+
 	@Bean
 	public Vertx vertxBean() {
 		return Vertx.vertx();
@@ -65,6 +98,11 @@ public class EventBusMappingTest {
 	@Bean
 	public EventBus eventBusBean(Vertx vertx) {
 		return vertx.eventBus();
+	}
+
+	@Bean
+	public String stringBean() {
+		return "String bean";
 	}
 
 	@Bean
