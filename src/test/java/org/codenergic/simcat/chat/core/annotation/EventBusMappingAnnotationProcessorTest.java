@@ -4,25 +4,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
+import org.codenergic.simcat.chat.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EventBusMappingAnnotationProcessorTest.class)
+@SpringBootTest(classes = { Application.class, EventBusMappingAnnotationProcessorTest.class })
+@ActiveProfiles({ "test" })
 public class EventBusMappingAnnotationProcessorTest {
 	@Autowired
 	private EventBus eventBus;
-
 
 	@Test
 	public void testSendMessage1() throws InterruptedException {
@@ -91,22 +91,7 @@ public class EventBusMappingAnnotationProcessorTest {
 	}
 
 	@Bean
-	public Vertx vertxBean() {
-		return Vertx.vertx();
-	}
-
-	@Bean
-	public EventBus eventBusBean(Vertx vertx) {
-		return vertx.eventBus();
-	}
-
-	@Bean
 	public String stringBean() {
 		return "String bean";
-	}
-
-	@Bean
-	public EventBusMappingAnnotationProcessor annotationProcessor(ConfigurableListableBeanFactory beanFactory) {
-		return new EventBusMappingAnnotationProcessor(beanFactory);
 	}
 }

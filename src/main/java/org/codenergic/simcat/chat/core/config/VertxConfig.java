@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -20,6 +21,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 
 @Configuration
+@Profile({ "!test" })
 public class VertxConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private static final long DEFAULT_CLUSTER_TIMEOUT = 60_000; // 60 seconds

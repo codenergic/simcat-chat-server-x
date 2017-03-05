@@ -30,12 +30,12 @@ public class AbstractMethodAnnotationProcessorTest {
 			}
 
 			@Override
-			protected void doWithAnnotatedMethod(Object bean, Method method, Object[] parameterInstances) {
+			protected void doWithAnnotatedMethod(Object bean, String beanName, Method method, Object[] parameterInstances) {
 				// do nothing
 			}
 		};
 		methodAnnotationProcessor.filterMethod(null);
-		methodAnnotationProcessor.doWithAnnotatedMethod(null, null, null);
+		methodAnnotationProcessor.doWithAnnotatedMethod(null, null, null, null);
 		testReplaceParameterInstancesMethod(null);
 		testReplaceParameterInstancesMethod(null, null);
 		testReplaceParameterInstancesMethod(null, null, null);

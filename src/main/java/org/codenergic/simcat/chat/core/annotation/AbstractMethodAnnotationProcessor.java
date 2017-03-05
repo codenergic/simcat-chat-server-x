@@ -31,11 +31,11 @@ public abstract class AbstractMethodAnnotationProcessor implements BeanPostProce
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
 		ReflectionUtils.doWithMethods(bean.getClass(),
-				method -> doWithAnnotatedMethod(bean, method, getParameterInstances(method)), this::filterMethod);
+				method -> doWithAnnotatedMethod(bean, beanName, method, getParameterInstances(method)), this::filterMethod);
 		return bean;
 	}
 
-	protected abstract void doWithAnnotatedMethod(Object bean, Method method, Object[] parameterInstances);
+	protected abstract void doWithAnnotatedMethod(Object bean, String beanName, Method method, Object[] parameterInstances);
 
 	protected abstract boolean filterMethod(Method method);
 

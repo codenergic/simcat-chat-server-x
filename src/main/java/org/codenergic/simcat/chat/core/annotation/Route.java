@@ -15,4 +15,6 @@ public @interface Route {
 	String path();
 
 	HttpMethod[] method() default {};
+
+	boolean blocking() default false;
 }

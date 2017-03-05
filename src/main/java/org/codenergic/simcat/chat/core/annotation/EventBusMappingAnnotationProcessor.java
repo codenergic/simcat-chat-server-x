@@ -16,12 +16,11 @@ public class EventBusMappingAnnotationProcessor extends AbstractMethodAnnotation
 	}
 
 	@Override
-	protected void doWithAnnotatedMethod(Object bean, Method method, Object[] parameterInstances) {
+	protected void doWithAnnotatedMethod(Object bean, String beanName, Method method, Object[] parameterInstances) {
 		String busAddress = method.getDeclaredAnnotation(EventBusMapping.class).value();
 		final boolean voidMethod = method.getReturnType().equals(Void.TYPE);
 
 		eventBus.consumer(busAddress, m -> {
-
 			Object result = ReflectionUtils
 					.invokeMethod(method, bean, replaceParameterInstances(method, parameterInstances, m));
 			if (!voidMethod) {
