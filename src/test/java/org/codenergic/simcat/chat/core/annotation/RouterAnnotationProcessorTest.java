@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpHeaders;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { Application.class, RouterAnnotationProcessorTest.class })
@@ -95,6 +96,40 @@ public class RouterAnnotationProcessorTest {
 				latch.countDown();
 			});
 		}).end();
+		Assertions.assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testRouting5() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch(2);
+		httpClient.post("/test5", r -> {
+			Assertions.assertThat(r.statusCode()).isEqualTo(200);
+			r.bodyHandler(body -> {
+				Assertions.assertThat(body.toString()).isEqualTo(TestRouter.TEST1_BODY);
+				latch.countDown();
+			});
+		}).end(TestRouter.TEST1_BODY);
+		httpClient.put("/test5", r -> {
+			Assertions.assertThat(r.statusCode()).isEqualTo(200);
+			Assertions.assertThat(r.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(HttpHeaders.TEXT_HTML.toString());
+			r.bodyHandler(body -> {
+				Assertions.assertThat(body.toString()).isEqualTo(TestRouter.TEST2_BODY);
+				latch.countDown();
+			});
+		}).putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaders.TEXT_HTML).end(TestRouter.TEST2_BODY);
+		Assertions.assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testRouting6() throws InterruptedException {
+		CountDownLatch latch = new CountDownLatch(1);
+		httpClient.post("/test6", r -> {
+			Assertions.assertThat(r.statusCode()).isEqualTo(200);
+			r.bodyHandler(body -> {
+				Assertions.assertThat(body.length()).isEqualTo(0);
+				latch.countDown();
+			});
+		}).end(TestRouter.TEST1_BODY);
 		Assertions.assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 

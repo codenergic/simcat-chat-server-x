@@ -17,4 +17,6 @@ public @interface Route {
 	HttpMethod[] method() default {};
 
 	boolean blocking() default false;
+
+	boolean handleBody() default true;
 }

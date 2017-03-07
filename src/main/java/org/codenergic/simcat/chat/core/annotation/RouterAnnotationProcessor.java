@@ -10,6 +10,7 @@ import org.springframework.util.ReflectionUtils;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class RouterAnnotationProcessor extends AbstractMethodAnnotationProcessor {
 	private Vertx vertx;
@@ -46,6 +47,9 @@ public class RouterAnnotationProcessor extends AbstractMethodAnnotationProcessor
 		if (route.method().length > 0) {
 			for (HttpMethod httpMethod : route.method())
 				webRoute.method(httpMethod);
+		}
+		if (route.handleBody()) {
+			webRoute.handler(BodyHandler.create());
 		}
 		if (route.blocking()) {
 			webRoute.blockingHandler(h -> invokeMethod(bean, method, parameterInstances, h));

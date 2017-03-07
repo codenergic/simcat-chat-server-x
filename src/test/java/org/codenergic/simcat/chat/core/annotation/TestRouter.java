@@ -1,6 +1,7 @@
 package org.codenergic.simcat.chat.core.annotation;
-
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
 
 @Router
@@ -28,5 +29,21 @@ public class TestRouter {
 	@RouteWithRegex(@Route(path = "/test4"))
 	public void testRoute4(RoutingContext routingContext) {
 		routingContext.response().end(TEST4_BODY);
+	}
+
+	@Route(path = "/test5")
+	public void testRoute5(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
+		HttpServerResponse response = routingContext.response();
+		response.headers().addAll(request.headers());
+		request.bodyHandler(response::end);
+	}
+
+	@Route(path = "/test6", handleBody = false)
+	public void testRoute6(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
+		HttpServerResponse response = routingContext.response();
+		request.bodyHandler(response::end);
+		request.endHandler(v -> response.end());
 	}
 }
