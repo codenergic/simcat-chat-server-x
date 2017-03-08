@@ -8,7 +8,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-boot.version>1.5.1.RELEASE</spring-boot.version>
-		<vertx.version>3.4.0.Beta1</vertx.version>
+		<vertx.version>3.4.0</vertx.version>
 		<wire.version>2.2.0</wire.version>
 	</properties>
 
