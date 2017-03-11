@@ -4,3 +4,5 @@
 /.classpath
 /.project
 /.factorypath
+/.idea/
+/simcat-chat-server.iml
