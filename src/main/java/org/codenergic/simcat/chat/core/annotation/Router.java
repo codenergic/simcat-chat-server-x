@@ -8,10 +8,10 @@ import java.lang.annotation.Target;
 
 import org.springframework.stereotype.Component;
 
+@Component
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Component
 public @interface Router {
 	String value() default "";
 }

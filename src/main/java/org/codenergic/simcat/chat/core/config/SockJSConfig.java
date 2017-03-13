@@ -25,11 +25,13 @@ public class SockJSConfig {
 	@Bean
 	public SockJSHandler sockJSHandler(Vertx vertx, BridgeOptions bridgeOptions) {
 		logger.info("Configuring SockJS handler");
-		logger.info("SockJS inbound permitted: {}", Json.encode(bridgeOptions.getInboundPermitteds()));
-		logger.info("SockJS outbound permitted: {}", Json.encode(bridgeOptions.getOutboundPermitteds()));
+		bridgeOptions.getInboundPermitteds()
+				.forEach(i -> logger.info("Registered inbound permitted: {}", Json.encode(i)));
+		bridgeOptions.getOutboundPermitteds()
+				.forEach(i ->  logger.info("Registered outbound permitted: {}", Json.encode(i)));
 		return SockJSHandler.create(vertx).bridge(bridgeOptions);
 	}
-	
+
 	@Bean
 	public Router staticHandlerRouter(Vertx vertx, SockJSHandler sockJSHandler) {
 		Router router = Router.router(vertx);
