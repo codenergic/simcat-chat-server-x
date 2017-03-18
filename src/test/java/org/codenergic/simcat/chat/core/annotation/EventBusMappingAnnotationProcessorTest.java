@@ -8,9 +8,7 @@ import org.codenergic.simcat.chat.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -18,7 +16,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { Application.class, EventBusMappingAnnotationProcessorTest.class })
+@SpringBootTest(classes = { Application.class })
 @ActiveProfiles({ "test" })
 public class EventBusMappingAnnotationProcessorTest {
 	@Autowired
@@ -68,30 +66,5 @@ public class EventBusMappingAnnotationProcessorTest {
 			lock.countDown();
 		});
 		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
-	}
-
-	@EventBusMapping("/test/message/1")
-	public void consumeAndReplyMessage1(Message<String> message) {
-		message.reply("Message 1: " + message.body());
-	}
-
-	@EventBusMapping("/test/message/2")
-	public String consumeAndReplyMessage2(Message<String> message) {
-		return "Message 2: " + message.body();
-	}
-
-	@EventBusMapping("/test/message/3")
-	public void consumeAndSendToAnother(Message<String> message, EventBus eventBus) {
-		eventBus.send(message.replyAddress(), "Message 3: " + message.body());
-	}
-
-	@EventBusMapping("/test/message/4")
-	public void consumeAndSendToAnother(Message<String> message, EventBus eventBus, @Qualifier("stringBean") String string) {
-		eventBus.send(message.replyAddress(), "Message 4: " + message.body() + " " + string);
-	}
-
-	@Bean
-	public String stringBean() {
-		return "String bean";
 	}
 }

@@ -16,6 +16,14 @@ public class EventBusMappingAnnotationProcessor extends AbstractMethodAnnotation
 	}
 
 	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName) {
+		if (bean.getClass().isAnnotationPresent(EventBusComponent.class)) {
+			return super.postProcessAfterInitialization(bean, beanName);
+		}
+		return bean;
+	}
+
+	@Override
 	protected void doWithAnnotatedMethod(Object bean, String beanName, Method method, Object[] parameterInstances) {
 		String busAddress = method.getDeclaredAnnotation(EventBusMapping.class).value();
 		final boolean voidMethod = method.getReturnType().equals(Void.TYPE);

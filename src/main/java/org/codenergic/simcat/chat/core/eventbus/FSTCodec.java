@@ -6,7 +6,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 
 public class FSTCodec implements MessageCodec<Object, Object> {
-	public static final String NAME = FSTCodec.class.getName();
+	public static final String CODEC_NAME = FSTCodec.class.getName();
 	private FSTConfiguration conf;
 
 	public FSTCodec(FSTConfiguration conf) {
@@ -21,10 +21,10 @@ public class FSTCodec implements MessageCodec<Object, Object> {
 	}
 
 	@Override
-	public Object decodeFromWire(int pos, Buffer buffer) {
+	public Object decodeFromWire(final int pos, Buffer buffer) {
 		int length = buffer.getInt(pos);
-		pos += 4;
-		byte[] obj = buffer.getBytes(pos, pos + length);
+		int currentPos = pos + 4;
+		byte[] obj = buffer.getBytes(currentPos, currentPos + length);
 
 		return conf.asObject(obj);
 	}
@@ -36,7 +36,7 @@ public class FSTCodec implements MessageCodec<Object, Object> {
 
 	@Override
 	public String name() {
-		return FSTCodec.NAME;
+		return FSTCodec.CODEC_NAME;
 	}
 
 	@Override

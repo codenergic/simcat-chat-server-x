@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface Router {
+@Target({ ElementType.TYPE })
+public @interface EventBusComponent {
 	String value() default "";
 }

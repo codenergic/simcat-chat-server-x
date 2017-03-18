@@ -1,18 +1,19 @@
 package org.codenergic.simcat.chat.event;
 
+import org.codenergic.simcat.chat.core.annotation.EventBusComponent;
+import org.codenergic.simcat.chat.core.annotation.EventBusMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.MultiMap;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
-import org.codenergic.simcat.chat.core.annotation.EventBusMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Created by diasa on 3/7/17.
  */
-@Component
+@EventBusComponent
 public class ChatHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ChatHandler.class);
