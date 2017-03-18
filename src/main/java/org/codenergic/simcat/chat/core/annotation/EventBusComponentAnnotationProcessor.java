@@ -7,20 +7,12 @@ import org.springframework.util.ReflectionUtils;
 
 import io.vertx.core.eventbus.EventBus;
 
-public class EventBusMappingAnnotationProcessor extends AbstractMethodAnnotationProcessor {
+public class EventBusComponentAnnotationProcessor extends AbstractMethodAnnotationProcessor {
 	private EventBus eventBus;
 
-	public EventBusMappingAnnotationProcessor(ConfigurableListableBeanFactory beanFactory) {
+	public EventBusComponentAnnotationProcessor(ConfigurableListableBeanFactory beanFactory) {
 		super(beanFactory);
 		this.eventBus = beanFactory.getBean(EventBus.class);
-	}
-
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		if (bean.getClass().isAnnotationPresent(EventBusComponent.class)) {
-			return super.postProcessAfterInitialization(bean, beanName);
-		}
-		return bean;
 	}
 
 	@Override

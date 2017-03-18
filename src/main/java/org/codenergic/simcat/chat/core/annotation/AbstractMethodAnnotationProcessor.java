@@ -25,13 +25,13 @@ public abstract class AbstractMethodAnnotationProcessor implements BeanPostProce
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
+		ReflectionUtils.doWithMethods(bean.getClass(),
+				method -> doWithAnnotatedMethod(bean, beanName, method, getParameterInstances(method)), this::filterMethod);
 		return bean;
 	}
 
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		ReflectionUtils.doWithMethods(bean.getClass(),
-				method -> doWithAnnotatedMethod(bean, beanName, method, getParameterInstances(method)), this::filterMethod);
 		return bean;
 	}
 

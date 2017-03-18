@@ -2,6 +2,7 @@ package org.codenergic.simcat.chat.core.config;
 
 import java.util.List;
 
+import org.codenergic.simcat.chat.core.annotation.EnableRouterScanning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 
 @Configuration
+@EnableRouterScanning
 @Profile({ "test", "webtest" })
 public class VertxWebTestConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

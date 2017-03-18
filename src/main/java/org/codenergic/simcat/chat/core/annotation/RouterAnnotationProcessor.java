@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.ReflectionUtils;
 
@@ -13,23 +15,28 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 public class RouterAnnotationProcessor extends AbstractMethodAnnotationProcessor {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	private Vertx vertx;
+	private io.vertx.ext.web.Router rootRouter;
 	private Map<String, io.vertx.ext.web.Router> routers = new HashMap<>();
 
-	public RouterAnnotationProcessor(ConfigurableListableBeanFactory beanFactory) {
+	public RouterAnnotationProcessor(ConfigurableListableBeanFactory beanFactory, io.vertx.ext.web.Router rootRouter) {
 		super(beanFactory);
 		this.vertx = beanFactory.getBean(Vertx.class);
+		this.rootRouter = rootRouter;
 	}
 
 	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
+	public Object postProcessBeforeInitialization(Object bean, String beanName) {
 		if (bean.getClass().isAnnotationPresent(Router.class)) {
+			logger.info("Found router for class {}", bean.getClass().getName());
 			io.vertx.ext.web.Router webRouter = io.vertx.ext.web.Router.router(vertx);
-			beanFactory.registerSingleton(beanName + "$Router", webRouter);
 			routers.put(beanName, webRouter);
-			return super.postProcessAfterInitialization(bean, beanName);
+			rootRouter.mountSubRouter("/", webRouter);
+			return super.postProcessBeforeInitialization(bean, beanName);
 		}
-		return bean;
+		return super.postProcessBeforeInitialization(bean, beanName);
 	}
 
 	@Override
@@ -49,7 +56,7 @@ public class RouterAnnotationProcessor extends AbstractMethodAnnotationProcessor
 				webRoute.method(httpMethod);
 		}
 		if (route.handleBody()) {
-			webRoute.handler(BodyHandler.create());
+			webRouter.route(route.path()).handler(BodyHandler.create());
 		}
 		if (route.blocking()) {
 			webRoute.blockingHandler(h -> invokeMethod(bean, method, parameterInstances, h));

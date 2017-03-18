@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.codenergic.simcat.chat.core.annotation.EnableEventBusComponentScanning;
 import org.codenergic.simcat.chat.core.eventbus.FSTCodec;
 import org.nustaq.serialization.FSTConfiguration;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
 
 @Configuration
+@EnableEventBusComponentScanning
 public class EventBusConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 

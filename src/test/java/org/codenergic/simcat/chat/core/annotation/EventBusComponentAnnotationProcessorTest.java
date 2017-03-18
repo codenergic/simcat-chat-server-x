@@ -18,7 +18,7 @@ import io.vertx.core.eventbus.Message;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { Application.class })
 @ActiveProfiles({ "test" })
-public class EventBusMappingAnnotationProcessorTest {
+public class EventBusComponentAnnotationProcessorTest {
 	@Autowired
 	private EventBus eventBus;
 
@@ -65,6 +65,17 @@ public class EventBusMappingAnnotationProcessorTest {
 			Assertions.assertThat("Message 4: Testing 4 String bean").isEqualTo(replyMessage.body());
 			lock.countDown();
 		});
+		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
+	}
+
+	@Test
+	public void testSendMessage5() throws InterruptedException {
+		CountDownLatch lock = new CountDownLatch(1);
+		eventBus.consumer("/test/message/5/reply", m -> {
+			Assertions.assertThat("Message 5").isEqualTo(m.body());
+			lock.countDown();
+		});
+		eventBus.send("/test/message/5", null);
 		Assertions.assertThat(lock.await(2, TimeUnit.SECONDS)).isTrue();
 	}
 }

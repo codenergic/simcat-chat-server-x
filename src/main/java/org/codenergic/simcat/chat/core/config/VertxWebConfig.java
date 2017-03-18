@@ -2,6 +2,7 @@ package org.codenergic.simcat.chat.core.config;
 
 import java.util.List;
 
+import org.codenergic.simcat.chat.core.annotation.EnableRouterScanning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 
 @Configuration
+@EnableRouterScanning
 @Profile({ "!test" })
 public class VertxWebConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -50,7 +52,11 @@ public class VertxWebConfig {
 	@Bean
 	public Handler<HttpServerRequest> httpServerRequestHandler(Vertx vertx, List<Router> routers) {
 		Router router = Router.router(vertx);
-		routers.forEach(r -> router.mountSubRouter("/", r));
+		routers.forEach(r -> {
+			logger.info("Registering sub-router");
+			r.getRoutes().forEach(rr -> logger.info("Registering route with path: {}", rr.getPath()));
+			router.mountSubRouter("/", r);
+		});
 		return router::accept;
 	}
 
