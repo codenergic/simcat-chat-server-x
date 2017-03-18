@@ -29,9 +29,10 @@ public class SockJSConfig {
 		logger.info("SockJS outbound permitted: {}", Json.encode(bridgeOptions.getOutboundPermitteds()));
 		return SockJSHandler.create(vertx).bridge(bridgeOptions);
 	}
-	
+
 	@Bean
-	public Router staticHandlerRouter(Vertx vertx, SockJSHandler sockJSHandler) {
+	public Router eventBusApiRouter(Vertx vertx, SockJSHandler sockJSHandler) {
+		logger.info("Registering EventBus API");
 		Router router = Router.router(vertx);
 		router.route("/api/bus/*").handler(sockJSHandler);
 		return router;
