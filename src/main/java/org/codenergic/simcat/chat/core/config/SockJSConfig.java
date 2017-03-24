@@ -36,7 +36,7 @@ public class SockJSConfig {
 	public Router eventBusApiRouter(Vertx vertx, SockJSHandler sockJSHandler) {
 		logger.info("Registering EventBus API");
 		Router router = Router.router(vertx);
-		router.route("/api/bus/*").handler(sockJSHandler);
+		router.route().handler(sockJSHandler);
 		return router;
 	}
 }

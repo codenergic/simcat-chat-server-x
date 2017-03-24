@@ -2,10 +2,17 @@ package org.codenergic.simcat.chat.core.config;
 
 import java.util.List;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 import org.codenergic.simcat.chat.core.annotation.EnableRouterScanning;
+import org.codenergic.simcat.chat.core.annotation.WebComponent;
+import org.jboss.resteasy.plugins.server.vertx.VertxRequestHandler;
+import org.jboss.resteasy.plugins.server.vertx.VertxResteasyDeployment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,13 +57,30 @@ public class VertxWebConfig {
 	}
 
 	@Bean
-	public Handler<HttpServerRequest> httpServerRequestHandler(Vertx vertx, List<Router> routers) {
+	public VertxResteasyDeployment vertxResteasyDeployment(@WebComponent List<Object> webComponents) {
+		VertxResteasyDeployment deployment = new VertxResteasyDeployment();
+		deployment.start();
+		webComponents.forEach(deployment.getRegistry()::addSingletonResource);
+		webComponents.forEach(w -> logger.info("Registering web component: {}", w.getClass().getName()));
+		return deployment;
+	}
+
+	@Bean
+	public Router restApiRouter(Vertx vertx, VertxResteasyDeployment deployment) {
 		Router router = Router.router(vertx);
-		routers.forEach(r -> {
-			logger.info("Registering sub-router");
-			r.getRoutes().forEach(rr -> logger.info("Registering route with path: {}", rr.getPath()));
-			router.mountSubRouter("/", r);
-		});
+		VertxRequestHandler restHandler = new VertxRequestHandler(vertx, deployment);
+		router.route().handler(r -> restHandler.handle(r.request()));
+		return router;
+	}
+
+	@Bean
+	public Handler<HttpServerRequest> httpServerRequestHandler(Vertx vertx,
+			@Qualifier("staticHandlerRouter") Router staticRouter, @Qualifier("restApiRouter") Router restRouter,
+			@Qualifier("eventBusApiRouter") Router eventBusRouter) {
+		Router router = Router.router(vertx);
+		router.mountSubRouter("/api", restRouter);
+		router.mountSubRouter("/bus", eventBusRouter);
+		router.mountSubRouter("/", staticRouter);
 		return router::accept;
 	}
 
@@ -70,5 +94,19 @@ public class VertxWebConfig {
 				logger.error("Failed to start HTTP server", h.cause());
 			}
 		});
+	}
+
+	@Bean
+	@WebComponent
+	public RootApi rootApi() {
+		return new RootApi();
+	}
+
+	@Path("/api")
+	public static class RootApi {
+		@GET
+		public String root() {
+			return "This is the root of the API";
+		}
 	}
 }
