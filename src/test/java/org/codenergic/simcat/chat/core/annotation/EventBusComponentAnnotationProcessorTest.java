@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
+import org.codenergic.simcat.Simcat;
 import org.codenergic.simcat.chat.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import io.vertx.core.eventbus.Message;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { Application.class })
-@ActiveProfiles({ "test" })
+@ActiveProfiles({ Simcat.PROFILE_TEST })
 public class EventBusComponentAnnotationProcessorTest {
 	@Autowired
 	private EventBus eventBus;

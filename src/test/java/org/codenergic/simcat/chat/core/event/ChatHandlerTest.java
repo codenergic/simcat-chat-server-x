@@ -1,6 +1,7 @@
 package org.codenergic.simcat.chat.core.event;
 
 import org.assertj.core.api.Assertions;
+import org.codenergic.simcat.Simcat;
 import org.codenergic.simcat.chat.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +18,7 @@ import io.vertx.core.eventbus.EventBus;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {Application.class, ChatHandlerTest.class})
-@ActiveProfiles({ "test" })
+@ActiveProfiles({ Simcat.PROFILE_TEST })
 public class ChatHandlerTest {
 	@Autowired
 	private EventBus eventBus;

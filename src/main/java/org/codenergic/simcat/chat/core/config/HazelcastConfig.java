@@ -1,5 +1,6 @@
 package org.codenergic.simcat.chat.core.config;
 
+import org.codenergic.simcat.Simcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,7 +13,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @Configuration
-@Profile({ "!test" })
+@Profile({ Simcat.PROFILE_DEVELOPMENT, Simcat.PROFILE_PRODUCTION })
 public class HazelcastConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 

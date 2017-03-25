@@ -105,6 +105,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring-boot.version}</version>
+				<configuration>
+					<arguments>
+						<argument>--spring.profiles.active=DEVELOPMENT</argument>
+					</arguments>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
+import org.codenergic.simcat.Simcat;
 import org.codenergic.simcat.chat.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,7 @@ import io.vertx.core.http.HttpHeaders;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = { Application.class, RouterAnnotationProcessorTest.class })
-@ActiveProfiles({ "test", "webtest" })
+@ActiveProfiles({ Simcat.PROFILE_TEST, Simcat.PROFILE_WEBTEST })
 public class RouterAnnotationProcessorTest {
 	@Autowired
 	private HttpClient httpClient;

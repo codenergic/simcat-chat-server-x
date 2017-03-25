@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageCodec;
 
@@ -32,6 +33,12 @@ public class EventBusConfig {
 				.forEach(eventBus::registerCodec);
 
 		return eventBus;
+	}
+
+	@Bean
+	public DeliveryOptions defaultDeliveryOptions() {
+		return new DeliveryOptions()
+				.setSendTimeout(5000);
 	}
 
 	@Bean
