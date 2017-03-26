@@ -6,7 +6,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 import org.codenergic.simcat.Simcat;
-import org.codenergic.simcat.chat.core.annotation.EnableRouterScanning;
 import org.codenergic.simcat.chat.core.annotation.WebComponent;
 import org.jboss.resteasy.plugins.server.vertx.VertxRequestHandler;
 import org.jboss.resteasy.plugins.server.vertx.VertxResteasyDeployment;
@@ -28,7 +27,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 
 @Configuration
-@EnableRouterScanning
 @Profile({ Simcat.PROFILE_DEVELOPMENT, Simcat.PROFILE_PRODUCTION })
 public class VertxWebConfig {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
