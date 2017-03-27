@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService, AsyncUserService {
 	}
 
 	@Override
-	public void udpateUser(Long id, User user, Handler<AsyncResult<User>> handler) {
+	public void updateUser(Long id, User user, Handler<AsyncResult<User>> handler) {
 		vertx.executeBlocking(h -> h.complete(updateUser(id, user).orElseThrow(IllegalArgumentException::new)), false, handler);
 	}
 }

@@ -73,7 +73,7 @@ public class UserRestService {
 				.username(userData.getUsername())
 				.password(userData.getPassword())
 				.build();
-		userService.udpateUser(id, user, h -> {
+		userService.updateUser(id, user, h -> {
 			if (h.succeeded())
 				response.resume(new UserRestData(h.result()));
 			else if (h.cause() instanceof IllegalArgumentException)

@@ -16,5 +16,5 @@ public interface AsyncUserService {
 
 	void saveUser(User user, Handler<AsyncResult<User>> handler);
 
-	void udpateUser(Long id, User user, Handler<AsyncResult<User>> handler);
+	void updateUser(Long id, User user, Handler<AsyncResult<User>> handler);
 }

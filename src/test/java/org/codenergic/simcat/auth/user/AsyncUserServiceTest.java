@@ -27,6 +27,16 @@ public class AsyncUserServiceTest {
 	@Spy
 	private Vertx vertx = Vertx.vertx();
 
+	private final User input = new User.Builder()
+			.username("test")
+			.password("test")
+			.build();
+	private final User output = new User.Builder()
+			.id(0L)
+			.username("test")
+			.password("test")
+			.build();
+
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
@@ -35,15 +45,6 @@ public class AsyncUserServiceTest {
 	@Test(timeout = 1000)
 	public void testSaveAndGetUser() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(1);
-		User input = new User.Builder()
-				.username("test")
-				.password("test")
-				.build();
-		User output = new User.Builder()
-				.id(0L)
-				.username("test")
-				.password("test")
-				.build();
 		when(userRepository.save(input)).thenReturn(output);
 		userService.saveUser(input, h -> {
 			User result = h.result();
@@ -58,12 +59,8 @@ public class AsyncUserServiceTest {
 	@Test(timeout = 1000)
 	public void testUpdateUserFail() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(1);
-		User input = new User.Builder()
-				.username("test")
-				.password("test")
-				.build();
 		when(userRepository.update(0L, input)).thenThrow(IllegalArgumentException.class);
-		userService.udpateUser(0L, input, h -> {
+		userService.updateUser(0L, input, h -> {
 			assertThat(h.failed()).isTrue();
 			assertThat(h.cause()).isInstanceOf(IllegalArgumentException.class);
 			assertThat(h.result()).isNull();
@@ -75,17 +72,8 @@ public class AsyncUserServiceTest {
 	@Test(timeout = 1000)
 	public void testUpdateAndGetUser() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(1);
-		User input = new User.Builder()
-				.username("test")
-				.password("test")
-				.build();
-		User output = new User.Builder()
-				.id(0L)
-				.username("test")
-				.password("test")
-				.build();
 		when(userRepository.update(0L, input)).thenReturn(Optional.of(output));
-		userService.udpateUser(0L, input, h -> {
+		userService.updateUser(0L, input, h -> {
 			User result = h.result();
 			assertThat(result).isNotNull();
 			assertThat(result).isEqualTo(output);
@@ -97,11 +85,6 @@ public class AsyncUserServiceTest {
 	@Test(timeout = 1000)
 	public void testFindAllUsers() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(1);
-		User output = new User.Builder()
-				.id(0L)
-				.username("test")
-				.password("test")
-				.build();
 		List<User> outputs = Arrays.asList(output);
 		when(userRepository.findAll(1)).thenReturn(outputs.stream());
 		userService.findAllUsers(1, h -> {
@@ -114,14 +97,9 @@ public class AsyncUserServiceTest {
 		latch.await();
 	}
 
-	@Test(timeout = 2000)
+	@Test(timeout = 3000)
 	public void testGetByIdAndUsername() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(4);
-		User output = new User.Builder()
-				.id(0L)
-				.username("test")
-				.password("test")
-				.build();
 		when(userRepository.getById(0L)).thenReturn(Optional.of(output));
 		when(userRepository.getById(1L)).thenReturn(Optional.ofNullable(null));
 		userService.getUserById(0L, h -> {
