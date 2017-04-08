@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Documented
-@Qualifier
+@Qualifier("WebComponent")
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
 public @interface WebComponent {
-	String value() default "WebComponent";
+	String value() default "";
 }

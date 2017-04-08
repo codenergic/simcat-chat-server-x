@@ -53,6 +53,7 @@
 			<artifactId>vertx-hazelcast</artifactId>
 		</dependency>
 
+		<!-- REST API -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-vertx</artifactId>
@@ -62,6 +63,19 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jackson2-provider</artifactId>
 			<version>${resteasy.version}</version>
+		</dependency>
+
+		<!-- Authentication and Authorization -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.5</version>
 		</dependency>
 
 		<dependency>

@@ -59,8 +59,13 @@ public class VertxWebConfig {
 	public VertxResteasyDeployment vertxResteasyDeployment(@WebComponent List<Object> webComponents) {
 		VertxResteasyDeployment deployment = new VertxResteasyDeployment();
 		deployment.start();
-		webComponents.forEach(deployment.getRegistry()::addSingletonResource);
-		webComponents.forEach(w -> logger.info("Registering web component: {}", w.getClass().getName()));
+		webComponents.stream()
+				.filter(w -> w.getClass().isAnnotationPresent(Path.class))
+				.map(w -> {
+					logger.info("Registering web component: {}", w.getClass().getName());
+					return w;
+				})
+				.forEach(deployment.getRegistry()::addSingletonResource);
 		return deployment;
 	}
 
