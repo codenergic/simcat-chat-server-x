@@ -28,19 +28,32 @@ public class DefaultAuth0Service implements Auth0Service {
 	private HttpClient httpClient;
 	private JWTVerifier jwtVerifier;
 
+	private static final String PROPS_CLIENT_ID = "client_id";
+	private static final String PROPS_CODE = "code";
+	private static final String PROPS_CONNECTION = "connection";
+	private static final String PROPS_EMAIL = "email";
+	private static final String PROPS_GRANT_TYPE = "grant_type";
+	private static final String PROPS_PASSWORD = "password";
+	private static final String PROPS_SCOPE = "scope";
+	private static final String PROPS_SEND = "send";
+	private static final String PROPS_USERNAME = "username";
+
 	public DefaultAuth0Service(Auth0Credentials credentials, JWTVerifier jwtVerifier, Vertx vertx) {
 		this.credentials = credentials;
-		this.httpClient = vertx.createHttpClient(new HttpClientOptions().setLocalAddress(credentials.getDomain()));
+		this.httpClient = vertx.createHttpClient(new HttpClientOptions()
+				.setDefaultHost(credentials.getDomain())
+				.setDefaultPort(443)
+				.setSsl(true));
 		this.jwtVerifier = jwtVerifier;
 	}
 
 	@Override
 	public void sendPasswordlessEmail(String email, Handler<AsyncResult<PasswordlessInfo>> handler) {
 		JsonObject requestBody = new JsonObject()
-				.put("client_id", credentials.getClientId())
-				.put("connection", "email")
-				.put("email", email)
-				.put("send", "code");
+				.put(PROPS_CLIENT_ID, credentials.getClientId())
+				.put(PROPS_CONNECTION, PROPS_EMAIL)
+				.put(PROPS_EMAIL, email)
+				.put(PROPS_SEND, PROPS_CODE);
 		Future<PasswordlessInfo> future = Future.future();
 		future.setHandler(handler);
 		httpClient.post("/passwordless/start", h -> {
@@ -60,15 +73,15 @@ public class DefaultAuth0Service implements Auth0Service {
 	@Override
 	public void verifyPasswordlessEmail(String username, String password, Handler<AsyncResult<Auth0User>> handler) {
 		JsonObject requestBody = new JsonObject()
-				.put("client_id", credentials.getClientId())
-				.put("connection", "email")
-				.put("grant_type", "password")
-				.put("scope", "openid profile email")
-				.put("username", username)
-				.put("password", password);
+				.put(PROPS_CLIENT_ID, credentials.getClientId())
+				.put(PROPS_CONNECTION, PROPS_EMAIL)
+				.put(PROPS_GRANT_TYPE, PROPS_PASSWORD)
+				.put(PROPS_SCOPE, "openid profile email")
+				.put(PROPS_USERNAME, username)
+				.put(PROPS_PASSWORD, password);
 		Future<Auth0User> future = Future.future();
 		future.setHandler(handler);
-		httpClient.post("/passwordless/start", h -> {
+		httpClient.post("/oauth/ro", h -> {
 			if (h.statusCode() != 200) {
 				future.fail(new IllegalArgumentException(h.statusMessage()));
 				return;

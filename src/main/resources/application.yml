@@ -14,6 +14,6 @@ vertx:
     static:
       caching_enabled: true
 auth0:
-  domain: https://dianw.au.auth0.com
+  domain: dianw.au.auth0.com
   client-id: mUmPv7JrMurLtgWFsFsOt776ztD43jJB
   client-secret: xlYBdfTdOux5UGiihinS0NYL32q3TotZFfh_w5V29eu7zjiFZ0x8YPBbhrppv93a
