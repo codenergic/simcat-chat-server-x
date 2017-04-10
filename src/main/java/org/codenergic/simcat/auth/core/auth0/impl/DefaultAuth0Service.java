@@ -24,19 +24,18 @@ import io.vertx.core.json.JsonObject;
 @Service
 @EnableConfigurationProperties(Auth0Credentials.class)
 public class DefaultAuth0Service implements Auth0Service {
-	private Auth0Credentials credentials;
-	private HttpClient httpClient;
-	private JWTVerifier jwtVerifier;
-
 	private static final String PROPS_CLIENT_ID = "client_id";
-	private static final String PROPS_CODE = "code";
 	private static final String PROPS_CONNECTION = "connection";
-	private static final String PROPS_EMAIL = "email";
 	private static final String PROPS_GRANT_TYPE = "grant_type";
 	private static final String PROPS_PASSWORD = "password";
 	private static final String PROPS_SCOPE = "scope";
 	private static final String PROPS_SEND = "send";
+	private static final String PROPS_SEND_CODE = "code";
 	private static final String PROPS_USERNAME = "username";
+
+	private Auth0Credentials credentials;
+	private HttpClient httpClient;
+	private JWTVerifier jwtVerifier;
 
 	public DefaultAuth0Service(Auth0Credentials credentials, JWTVerifier jwtVerifier, Vertx vertx) {
 		this.credentials = credentials;
@@ -48,12 +47,12 @@ public class DefaultAuth0Service implements Auth0Service {
 	}
 
 	@Override
-	public void sendPasswordlessEmail(String email, Handler<AsyncResult<PasswordlessInfo>> handler) {
+	public void sendVerificationCode(String emailOrPhone, Connection connection, Handler<AsyncResult<PasswordlessInfo>> handler) {
 		JsonObject requestBody = new JsonObject()
 				.put(PROPS_CLIENT_ID, credentials.getClientId())
-				.put(PROPS_CONNECTION, PROPS_EMAIL)
-				.put(PROPS_EMAIL, email)
-				.put(PROPS_SEND, PROPS_CODE);
+				.put(PROPS_CONNECTION, connection.getConnectionKey())
+				.put(connection.getField(), emailOrPhone)
+				.put(PROPS_SEND, PROPS_SEND_CODE);
 		Future<PasswordlessInfo> future = Future.future();
 		future.setHandler(handler);
 		httpClient.post("/passwordless/start", h -> {
@@ -71,14 +70,14 @@ public class DefaultAuth0Service implements Auth0Service {
 	}
 
 	@Override
-	public void verifyPasswordlessEmail(String username, String password, Handler<AsyncResult<Auth0User>> handler) {
+	public void verifyCode(String emailOrPhone, String code, Connection connection, Handler<AsyncResult<Auth0User>> handler) {
 		JsonObject requestBody = new JsonObject()
 				.put(PROPS_CLIENT_ID, credentials.getClientId())
-				.put(PROPS_CONNECTION, PROPS_EMAIL)
+				.put(PROPS_CONNECTION, connection.getConnectionKey())
 				.put(PROPS_GRANT_TYPE, PROPS_PASSWORD)
-				.put(PROPS_SCOPE, "openid profile email")
-				.put(PROPS_USERNAME, username)
-				.put(PROPS_PASSWORD, password);
+				.put(PROPS_SCOPE, "openid")
+				.put(PROPS_USERNAME, emailOrPhone)
+				.put(PROPS_PASSWORD, code);
 		Future<Auth0User> future = Future.future();
 		future.setHandler(handler);
 		httpClient.post("/oauth/ro", h -> {
