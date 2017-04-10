@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.ext.Provider;
 
 import org.codenergic.simcat.Simcat;
 import org.codenergic.simcat.chat.core.annotation.WebComponent;
@@ -59,6 +60,13 @@ public class VertxWebConfig {
 	public VertxResteasyDeployment vertxResteasyDeployment(@WebComponent List<Object> webComponents) {
 		VertxResteasyDeployment deployment = new VertxResteasyDeployment();
 		deployment.start();
+		webComponents.stream()
+				.filter(w -> w.getClass().isAnnotationPresent(Provider.class))
+				.map(w -> {
+					logger.info("Registering provider: {}", w.getClass().getName());
+					return w;
+				})
+				.forEach(deployment.getProviderFactory()::register);
 		webComponents.stream()
 				.filter(w -> w.getClass().isAnnotationPresent(Path.class))
 				.map(w -> {
